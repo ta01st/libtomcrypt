@@ -55,32 +55,76 @@ LTC_EXPORT int   LTC_CALL XSTRCMP(const char *s1, const char *s2);
  * use the portable [slower] macros.
  */
 
-/* detect x86-32 machines somewhat */
-#if !defined(__STRICT_ANSI__) && !defined(__x86_64__) && !defined(_WIN64) && ((defined(_MSC_VER) && defined(WIN32)) || (defined(__GNUC__) && (defined(__DJGPP__) || defined(__CYGWIN__) || defined(__MINGW32__) || defined(__i386__))))
-   #define ENDIAN_LITTLE
-   #define ENDIAN_32BITWORD
-   #define LTC_FAST
+/*
+ * Detect the word size
+ */
+/* if your compiler has __WORDSIZE use this */
+#if __WORDSIZE == 64
+#define ENDIAN_64BITWORD
+#elif __WORDSIZE == 32
+#define ENDIAN_32BITWORD
+
+#else
+
+/* no __WORDSIZE, fall back to architecture dependant/old style detection */
+#if defined(__powerpc64__) || defined(__s390x__)
+#define ENDIAN_64BITWORD
+#elif defined(__s390__)
+#define ENDIAN_32BITWORD
+#elif (defined(__R5900) || defined(R5900) || defined(__R5900__)) && (defined(_mips) || defined(__mips__) || defined(mips))
+#define ENDIAN_64BITWORD
+#elif !defined(__STRICT_ANSI__) && !defined(__x86_64__) && !defined(_WIN64) && ((defined(_MSC_VER) && defined(WIN32)) || (defined(__GNUC__) && (defined(__DJGPP__) || defined(__CYGWIN__) || defined(__MINGW32__) || defined(__i386__))))
+#define ENDIAN_32BITWORD
+#elif !defined(__STRICT_ANSI__) && defined(LTC_PPC32)
+#define ENDIAN_32BITWORD
+#else
+#error could not detect word size
 #endif
 
-/* detects MIPS R5900 processors (PS2) */
-#if (defined(__R5900) || defined(R5900) || defined(__R5900__)) && (defined(_mips) || defined(__mips__) || defined(mips))
-   #define ENDIAN_LITTLE
-   #define ENDIAN_64BITWORD
+#endif
+
+#if !defined(__STRICT_ANSI__)
+
+/*
+ * Detect the byte order
+ */
+/* if your compiler has __BYTE_ORDER__ use this */
+#if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+#define ENDIAN_BIG
+#elif __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+#define ENDIAN_LITTLE
+
+#else
+
+/* no __BYTE_ORDER__, fall back to architecture dependant/old style detection */
+#if defined(__powerpc64__) || defined(__s390x__) || defined(__s390__) || defined(__sparc__)
+#define ENDIAN_BIG
+#elif (defined(__R5900) || defined(R5900) || defined(__R5900__)) && (defined(_mips) || defined(__mips__) || defined(mips))
+#define ENDIAN_LITTLE
+#elif !defined(__x86_64__) && !defined(_WIN64) && ((defined(_MSC_VER) && defined(WIN32)) || (defined(__GNUC__) && (defined(__DJGPP__) || defined(__CYGWIN__) || defined(__MINGW32__) || defined(__i386__))))
+#define ENDIAN_LITTLE
+#elif defined(LTC_PPC32)
+#define ENDIAN_BIG
+#else
+#error could not detect byte order
+#endif
+
+#endif
+
+/*
+ * Detect if we can enable LTC_FAST
+ */
+#if !defined(__x86_64__) && !defined(_WIN64) && \
+((defined(_MSC_VER) && defined(WIN32)) || (defined(__GNUC__) && (defined(__DJGPP__) || defined(__CYGWIN__) || defined(__MINGW32__) || defined(__i386__))))
+   #define LTC_FAST
 #endif
 
 /* detect amd64 */
-#if !defined(__STRICT_ANSI__) && defined(__x86_64__)
-   #define ENDIAN_LITTLE
-   #define ENDIAN_64BITWORD
+#if (defined(__x86_64__) || defined(__powerpc64__) || defined(__s390x__) || defined(__s390__) || defined(__sparc__) || defined(LTC_PPC32))
    #define LTC_FAST
 #endif
 
-/* detect PPC32 */
-#if !defined(__STRICT_ANSI__) && defined(LTC_PPC32)
-   #define ENDIAN_BIG
-   #define ENDIAN_32BITWORD
-   #define LTC_FAST
-#endif
+#endif /* __STRICT_ANSI__ */
 
 /* fix for MSVC ...evil! */
 #ifdef _MSC_VER
@@ -94,7 +138,7 @@ LTC_EXPORT int   LTC_CALL XSTRCMP(const char *s1, const char *s2);
 /* this is the "32-bit at least" data type
  * Re-define it to suit your platform but it must be at least 32-bits
  */
-#if defined(__x86_64__) || (defined(__sparc__) && defined(__arch64__))
+#if defined(ENDIAN_64BITWORD)
    typedef unsigned ulong32;
 #else
    typedef unsigned long ulong32;
@@ -115,16 +159,6 @@ typedef ulong32 __attribute__((__may_alias__)) LTC_FAST_TYPE;
 #endif
 #endif
 #endif /* LTC_FAST */
-
-/* detect sparc and sparc64 */
-#if defined(__sparc__)
-  #define ENDIAN_BIG
-  #if defined(__arch64__)
-    #define ENDIAN_64BITWORD
-  #else
-    #define ENDIAN_32BITWORD
-  #endif
-#endif
 
 #ifdef ENDIAN_64BITWORD
 typedef ulong64 ltc_mp_digit;
