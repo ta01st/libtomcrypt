@@ -197,18 +197,6 @@ LTC_EXPORT int   LTC_CALL XSTRCMP(const char *s1, const char *s2);
    #undef LTC_FAST
 #endif
 
-/* No asm is a quick way to disable anything "not portable" */
-#ifdef LTC_NO_ASM
-   #undef ENDIAN_LITTLE
-   #undef ENDIAN_BIG
-   #undef ENDIAN_32BITWORD
-   #undef ENDIAN_64BITWORD
-   #undef LTC_FAST
-   #undef LTC_FAST_TYPE
-   #define LTC_NO_ROLC
-   #define LTC_NO_BSWAP
-#endif
-
 #ifdef LTC_FAST
    #define LTC_FAST_TYPE_PTR_CAST(x) ((LTC_FAST_TYPE*)(void*)(x))
    #ifdef ENDIAN_64BITWORD
@@ -222,6 +210,18 @@ LTC_EXPORT int   LTC_CALL XSTRCMP(const char *s1, const char *s2);
 typedef ulong64 ltc_mp_digit;
 #else
 typedef ulong32 ltc_mp_digit;
+#endif
+
+/* No asm is a quick way to disable anything "not portable" */
+#ifdef LTC_NO_ASM
+   #undef ENDIAN_LITTLE
+   #undef ENDIAN_BIG
+   #undef ENDIAN_32BITWORD
+   #undef ENDIAN_64BITWORD
+   #undef LTC_FAST
+   #undef LTC_FAST_TYPE
+   #define LTC_NO_ROLC
+   #define LTC_NO_BSWAP
 #endif
 
 #if (defined(ENDIAN_BIG) || defined(ENDIAN_LITTLE)) && !(defined(ENDIAN_32BITWORD) || defined(ENDIAN_64BITWORD))
