@@ -225,8 +225,7 @@ typedef ulong32 ltc_mp_digit;
 
 /* No asm is a quick way to disable anything "not portable" */
 #ifdef LTC_NO_ASM
-   #undef ENDIAN_LITTLE
-   #undef ENDIAN_BIG
+   #define ENDIAN_NEUTRAL
    #undef ENDIAN_32BITWORD
    #undef ENDIAN_64BITWORD
    #undef LTC_FAST
@@ -235,7 +234,7 @@ typedef ulong32 ltc_mp_digit;
    #define LTC_NO_BSWAP
 #endif
 
-#if (defined(ENDIAN_BIG) || defined(ENDIAN_LITTLE)) && !(defined(ENDIAN_32BITWORD) || defined(ENDIAN_64BITWORD))
+#if !defined(ENDIAN_NEUTRAL) && (defined(ENDIAN_BIG) || defined(ENDIAN_LITTLE)) && !(defined(ENDIAN_32BITWORD) || defined(ENDIAN_64BITWORD))
     #error You must specify a word size as well as endianess in tomcrypt_cfg.h
 #endif
 

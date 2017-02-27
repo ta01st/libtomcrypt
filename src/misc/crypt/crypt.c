@@ -25,13 +25,12 @@ const char *crypt_build_settings =
 #endif
    "\n\nEndianness: "
 #if defined(ENDIAN_NEUTRAL)
-   "neutral"
-#else
+   "neutral/"
+#endif
 #if defined(ENDIAN_LITTLE)
    "little"
 #elif defined(ENDIAN_BIG)
    "big"
-#endif
 #endif
    #if defined(ENDIAN_32BITWORD)
    " (32-bit words)\n"
