@@ -146,6 +146,17 @@ LTC_EXPORT int   LTC_CALL XSTRCMP(const char *s1, const char *s2);
   #endif
 #endif
 
+/* detect PPC64 */
+#if defined(__powerpc64__) || defined(__ppc64__) || defined(__PPC64__)
+   #define ENDIAN_64BITWORD
+   #if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+      #define ENDIAN_BIG
+   #elif  __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+      #define ENDIAN_LITTLE
+   #endif
+   #define LTC_FAST
+#endif
+
 /* endianness fallback */
 #if !defined(ENDIAN_BIG) && !defined(ENDIAN_LITTLE)
   #if defined(__BYTE_ORDER) && __BYTE_ORDER == __BIG_ENDIAN || \
