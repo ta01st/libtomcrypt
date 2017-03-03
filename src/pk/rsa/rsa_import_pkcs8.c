@@ -40,22 +40,13 @@
  * - EncryptedData ::= OCTET STRING
  */
 
-/*
- * This PKCS12 key derivation code comes from BouncyCastle.
- *
- * @param idByte         1 == key, 2 == iv
- * @param n              keysize or ivsize
- * @param salt           8 byte salt
- * @param password       password
- * @param iterationCount iteration-count
- * @param md             The message digest to use
- * @return byte[] the derived key
- */
-
-/*
-pkcs12(int idByte, int n, byte[] salt, byte[] password, int iterationCount, MessageDigest md)
+/**
+  Import an RSAPublicKey or RSAPrivateKey in PKCS#8 format
+  @param in      The packet to import from
+  @param inlen   It's length (octets)
+  @param key     [out] Destination for newly imported key
+  @return CRYPT_OK if successful, upon error allocated memory is freed
 */
-
 int rsa_import_pkcs8(unsigned char *in, unsigned long inlen, rsa_key *key)
 {
    int           err;
